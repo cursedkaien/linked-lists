@@ -1,22 +1,30 @@
-class LinkedList {
+export default class LinkedList {
   constructor() {
     this.head = null;
+    this.tail = null;
   }
 
   append(value) {
+    const newNode = new Node(value);
+
     if (this.head === null) {
-      this.head = new Node(value);
+      this.head = newNode;
+      this.tail = newNode;
       return;
     }
-    let current = this.head;
-    while (current.nextNode !== null) {
-      current = current.nextNode;
-    }
-    current.nextNode = new Node(value);
+
+    this.tail.nextNode = newNode;
+    this.tail = newNode;
   }
 
   prepend(value) {
     const newNode = new Node(value);
+
+    if (this.head === null) {
+      this.head = newNode;
+      this.tail = newNode;
+      return;
+    }
     newNode.nextNode = this.head;
     this.head = newNode;
   }
@@ -42,11 +50,8 @@ class LinkedList {
     if (this.head === null) {
       return undefined;
     }
-    let current = this.head;
-    while (current.nextNode !== null) {
-      current = current.nextNode;
-    }
-    return current.value;
+
+    return this.tail.value;
   }
 
   at(index) {
@@ -67,6 +72,11 @@ class LinkedList {
     }
     const value = this.head.value;
     this.head = this.head.nextNode;
+
+    if (this.head) {
+      this.tail = null;
+    }
+
     return value;
   }
 
@@ -100,10 +110,63 @@ class LinkedList {
     let current = this.head;
 
     while (current !== null) {
-      result += `( ${current.value} ) ->`;
+      result += `( ${current.value} ) -> `;
       current = current.nextNode;
     }
     return result + "null";
+  }
+
+  insertAt(index, ...values) {
+    if (index < 0 || index > this.size()) {
+      throw new RangeError();
+    }
+
+    if (values.length === 0) {
+      return;
+    }
+
+    if (index === 0) {
+      for (const value of values.reverse()) {
+        this.prepend(value);
+      }
+      return;
+    }
+    let current = this.head;
+    for (let i = 0; i < index - 1; i++) {
+      current = current.nextNode;
+    }
+    for (const value of values) {
+      const newNode = new Node(value);
+      newNode.nextNode = current.nextNode;
+      current.nextNode = newNode;
+
+      current = newNode;
+    }
+    if (current.nextNode === null) {
+      this.tail = current;
+    }
+  }
+
+  removeAt(index) {
+    if (index < 0 || index > this.size()) {
+      throw new RangeError();
+    }
+
+    if (index === 0) {
+      this.pop();
+      return;
+    }
+
+    let current = this.head;
+    for (let i = 0; i < index - 1; i++) {
+      current = current.nextNode;
+    }
+
+    if ((current.nextNode = this.tail)) {
+      this.tail = current;
+    }
+
+    current.nextNode = current.nextNode.nextNode;
   }
 }
 
